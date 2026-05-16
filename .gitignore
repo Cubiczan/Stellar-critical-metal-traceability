@@ -23,6 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
-# CHP session artifacts (local only)
+# CHP governance artifacts (local only)
 .chp_registry.json
 .chp/sessions/
+.chp/local/
+.chp/sealed/

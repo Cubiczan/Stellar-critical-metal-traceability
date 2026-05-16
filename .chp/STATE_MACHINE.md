@@ -1,51 +1,145 @@
-# CHP State Machine — Stellar-critical-metal-traceability
+# CHP State Machine
 
-## Protocol: Consensus Hardening Protocol (CHP) v1.0
-## Domain: Blockchain / Mining
-## Applied: 2026-05-16
+> **Repository**: Stellar-critical-metal-traceability (Mineral Gateway)
+> **Domain**: Blockchain/DeFi
+> **Foundation Threshold**: 85
+> **CHP Version**: cognitive-mesh-orchestrator 0.1.0
 
-### States
-- EXPLORING: Initial decision exploration with foundation disclosure
-- PROVISIONAL: Foundation score ≥85, devil's advocate complete
-- PROVISIONAL_LOCK: Ready for third-party validation
-- LOCKED: Third-party CONFIRM received, decision committed
-- CONVERGED: Cross-agent agreement achieved
-- UNRESOLVED: Forced at round 5 if no convergence
-- REQUIRES_HUMAN_VERIFICATION: CFO accuracy guard tripped
-- REFRAME_REQUIRED: Foundation score <85
-- HALT: R0 gate fatal or context parity significant
+---
 
-### Phase Progression
-FOUNDATION (Phase 0) → SPEC (Phase 1) → IMPLEMENTATION (Phase 2)
-Phase transitions occur at round boundaries: FOUNDATION→SPEC at round 1, SPEC→IMPLEMENTATION at round 3.
+## States
 
-### State Transitions
-- EXPLORING → PROVISIONAL: Foundation score ≥ 85, oracle and traceability validation complete
-- EXPLORING → REFRAME_REQUIRED: Foundation score < 85 or unaddressed supply chain risk
-- PROVISIONAL → PROVISIONAL_LOCK: Devil's advocate complete, regulatory compliance checked
-- PROVISIONAL_LOCK → LOCKED: Third-party CONFIRM received with mining traceability validation
-- PROVISIONAL_LOCK → EXPLORING: Third-party REJECT with compliance correction criteria
-- LOCKED → CONVERGED: Cross-agent consensus with blockchain immutability acknowledged
-- Any → HALT: Critical regulatory non-compliance detected
-- Any → UNRESOLVED: Forced at round 5 if no mining consensus
+### 1. EXPLORING
 
-### R0 Gate (Session Entry)
-All four checks must PASS:
-- Solvable: The decision can be resolved within the domain's constraints
-- Scoped: Clear scope boundaries defined in dossier
-- Valid: Current state and goal state are specified
-- Worth_it: Stakes justify the governance overhead
+The default initial state. Agents are gathering context, reading codebase, formulating
+approaches, and performing R0 feasibility checks. No mutations to CHP-governed paths
+are permitted.
 
-### Foundation Score Thresholds
-- General: ≥70 PASS, <70 REFRAME
-- Finance/CFO: ≥100 (CFOAccuracyPolicy), <100 REQUIRES_HUMAN_VERIFICATION
-- Blockchain/DeFi: ≥85 (elevated due to immutable tx risk)
+**Allowed Actions**:
+- Read-only exploration of codebase and documentation
+- R0 gate evaluation (Solvable, Scoped, Valid, Worth_it)
+- Drafting proposals in `.chp/local/` (untracked)
+- Foundation disclosure analysis
 
-### Adversary Schedule
-- Phase 0, Round 0: Mandatory devil's advocate from FoundationDisclosure + FoundationAttack
-- Phase 2, Round 3: Implementation drift check devil's advocate
-- Council Spawn: high_stakes=True AND confidence <85 → 3-model cross-review
+**Exit Conditions**:
+- All R0 checks pass → transition to `ADVISORY_LOCK`
 
-### Third-Party Validation
-- PROVISIONAL_LOCK → CONFIRM → LOCKED
-- PROVISIONAL_LOCK → REJECT → EXPLORING (with flip_criteria)
+---
+
+### 2. ADVISORY_LOCK
+
+Adversarial review gate. A mandatory devil's advocate phase where at least one
+independent challenge from `.chp/ADVERSARIAL_PROMPTS.md` must be executed against
+the proposed approach. No code changes to CHP-governed paths.
+
+**Allowed Actions**:
+- Run adversarial challenge templates
+- Revise proposals based on challenge results
+- Request third-party review
+- Continue foundation disclosure refinement
+
+**Exit Conditions**:
+- Challenges addressed and documented → transition to `PROVISIONAL_LOCK`
+- Critical challenge unresolvable → revert to `EXPLORING`
+
+---
+
+### 3. PROVISIONAL_LOCK
+
+Approach is tentatively approved. Code changes may begin on non-critical paths,
+but final merge or deployment to CHP-governed paths is blocked until third-party
+CONFIRM is received.
+
+**Allowed Actions**:
+- Implement changes on provisional branches
+- Run test suites and validation
+- Request independent third-party CONFIRM/REJECT
+- Update `CHP_COMPLIANCE.md` with progress
+
+**Exit Conditions**:
+- Third-party CONFIRM received → transition to `LOCKED`
+- Third-party REJECT or critical finding → revert to `ADVISORY_LOCK`
+
+---
+
+### 4. LOCKED
+
+Decision is final and immutable within this protocol cycle. Changes to CHP-governed
+paths are sealed. A new cycle must be initiated for further modifications.
+
+**Allowed Actions**:
+- Merge approved changes
+- Deploy sealed artifacts
+- Archive compliance record
+
+**Exit Conditions**:
+- New protocol cycle initiated → transition to `EXPLORING` (new cycle)
+
+---
+
+## State Transition Diagram
+
+```
+                    ┌─────────────┐
+                    │  EXPLORING  │◄──────────────────────┐
+                    └──────┬──────┘                       │
+                           │ R0 passes                    │
+                           ▼                              │
+                    ┌──────────────┐                      │
+                    │ ADVISORY_LOCK │───(unresolvable)────┘
+                    └──────┬───────┘
+                           │ challenges addressed
+                           ▼
+                 ┌────────────────────┐
+                 │  PROVISIONAL_LOCK  │───(REJECT)──► ADVISORY_LOCK
+                 └────────┬───────────┘
+                          │ CONFIRM
+                          ▼
+                    ┌──────────┐
+                    │  LOCKED  │───(new cycle)──► EXPLORING
+                    └──────────┘
+```
+
+---
+
+## Domain Configuration
+
+```yaml
+domain: blockchain_defi
+repository: Stellar-critical-metal-traceability
+description: Stellar/Soroban critical metal traceability and tokenization platform
+threshold: 85
+governed_paths:
+  - "src/lib/stellar.ts"
+  - "src/components/CompliancePanel.tsx"
+  - "src/components/SupplyChainFlow.tsx"
+  - "src/components/EntityRegistry.tsx"
+  - "src/pages/Compliance.tsx"
+  - "src/pages/Assets.tsx"
+  - "src/pages/SupplyChain.tsx"
+risk_classifications:
+  - smart_contract_interaction
+  - token_mint_burn
+  - compliance_attestation
+  - supply_chain_provenance
+  - feoc_screening
+```
+
+## Policy-Specific Constraints
+
+Given this repository's domain (critical minerals traceability on Stellar with
+regulatory compliance), the following additional constraints apply:
+
+1. **No assumption of trustless operation** — Soroban contract calls must always
+   validate return values; never assume on-chain data is correct without verification.
+2. **Compliance attestation immutability** — Once a compliance attestation is
+   recorded on-chain, the state machine must treat it as LOCKED regardless of
+   the current protocol cycle.
+3. **Supply chain provenance integrity** — Any changes to provenance graph logic
+   must pass through a full ADVISORY_LOCK cycle with domain-specific challenges.
+4. **FEOC screening overrides** — Foreign Entity of Concern detection logic changes
+   require an additional adversarial review focused on false-negative risk.
+
+---
+
+*This state machine is auto-managed by CHP. Manual state changes are not permitted.*

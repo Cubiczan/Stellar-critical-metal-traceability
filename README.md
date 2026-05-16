@@ -196,24 +196,42 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 This repository is hardened with the [Consensus Hardening Protocol (CHP)](https://codeberg.org/cubiczan/consensus-hardening-protocol), Cubiczan's decision-governance layer for multi-agent AI systems.
 
 ### Protocol Layers
-- **R0 Gate**: All decisions must pass Solvable, Scoped, Valid, Worth_it checks
-- **Foundation Disclosure**: 1-3 weakest assumptions, 1-2 invalidation conditions, 1 key vulnerability
-- **Adversarial Layer**: Mandatory devil's advocate at Phase 0 and Round 3
-- **State Machine**: EXPLORING → PROVISIONAL → PROVISIONAL_LOCK → LOCKED
-- **Third-Party Validation**: Independent CONFIRM/REJECT before lock
+- **R0 Gate**: All decisions must pass Solvable, Scoped, Valid, Worth_it checks (sycophancy detection at 0.85 similarity threshold)
+- **Foundation Disclosure**: 1–3 weakest assumptions, 1–2 invalidation conditions, 1 key vulnerability
+- **Adversarial Layer**: Mandatory devil's advocate at ADVISORY_LOCK using domain-specific challenge templates
+- **State Machine**: EXPLORING → ADVISORY_LOCK → PROVISIONAL_LOCK → LOCKED
+- **Third-Party Validation**: Independent CONFIRM/REJECT before LOCKED transition
 
 ### Domain Configuration
-- **Category**: Blockchain / Mining
+- **Category**: Blockchain/DeFi
 - **Foundation Threshold**: 85
-- **CFO Accuracy Guard**: Disabled
+- **Governed Paths**: Stellar integration, compliance logic, token flows, supply chain provenance, entity registry
+
+### State Machine
+
+```
+EXPLORING ──(R0 pass)──► ADVISORY_LOCK ──(challenges met)──► PROVISIONAL_LOCK ──(CONFIRM)──► LOCKED
+     ▲                                                                                      │
+     └───────────────────────────(new cycle)──────────────────────────────────────────────────┘
+```
 
 ### Compliance Artifacts
 | File | Purpose |
 |------|---------|
-| `.chp/STATE_MACHINE.md` | Decision state transitions |
-| `.chp/R0_CONFIG.yaml` | Domain-calibrated thresholds |
-| `.chp/ADVERSARIAL_PROMPTS.md` | Standardized challenge templates |
-| `.chp/CHP_COMPLIANCE.md` | Compliance tracking & audit trail |
+| `.chp/STATE_MACHINE.md` | Decision state transitions and domain configuration |
+| `.chp/R0_CONFIG.yaml` | R0 gate thresholds, sycophancy detection, domain calibration |
+| `.chp/ADVERSARIAL_PROMPTS.md` | 5 domain-specific challenge templates (immutability, FEOC, token economics, contract upgrades, regulatory shifts) |
+| `.chp/CHP_COMPLIANCE.md` | Compliance audit trail — R0 records, foundation disclosures, challenge outcomes, state transitions |
+| `.github/workflows/chp-validation.yml` | CI gate validating CHP artifact integrity on push/PR |
+
+### CI Gate
+
+All pushes and pull requests to `main`/`develop` are validated by the `chp-validation` workflow, which verifies:
+- All CHP artifacts exist and are well-formed
+- State machine contains all four states (EXPLORING, ADVISORY_LOCK, PROVISIONAL_LOCK, LOCKED)
+- R0 config contains domain and threshold settings
+- Adversarial prompts contain at least 5 challenge templates
+- No sealed artifacts are modified outside protocol
 
 ### CHP Version
 cognitive-mesh-orchestrator 0.1.0 | [Protocol Docs](https://codeberg.org/cubiczan/consensus-hardening-protocol)
