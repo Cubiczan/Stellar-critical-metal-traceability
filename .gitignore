@@ -11,6 +11,15 @@ node_modules
 dist
 dist-ssr
 *.local
+coverage
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Redundant binary lockfile (bun.lock text lockfile is tracked instead)
+bun.lockb
 
 # Editor directories and files
 .vscode/*
