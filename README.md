@@ -62,7 +62,43 @@ Mineral Gateway builds a vertically integrated traceability stack on Stellar:
 
 ## Getting Started
 
-See [BUIDL.md](BUIDL.md) for detailed build instructions and architecture documentation.
+### Prerequisites
+
+- Node.js 18+ (or [Bun](https://bun.sh))
+
+### Installation
+
+```bash
+# with bun
+bun install
+
+# or with npm
+npm install
+```
+
+### Development
+
+Start the Vite dev server (runs on http://localhost:8080):
+
+```bash
+bun run dev   # or: npm run dev
+```
+
+### Build and Preview
+
+```bash
+bun run build     # production build to dist/
+bun run preview   # serve the production build locally
+```
+
+### Testing and Linting
+
+```bash
+bun run test   # run Vitest unit tests
+bun run lint   # run ESLint
+```
+
+See [BUIDL.md](BUIDL.md) for architecture documentation and protocol details.
 
 ## License
 
