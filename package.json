@@ -89,14 +89,13 @@
     "vitest": "^3.2.4"
   },
   "overrides": {
-    "lodash": "4.18.1",
+    "lodash@<4.18.1": "4.18.1",
     "axios": "1.18.0",
-    "@stellar/stellar-sdk": "15.1.0",
     "toml": "4.2.0",
     "follow-redirects": "1.16.0",
-    "react-hook-form": "7.81.0",
+    "react-hook-form@>=7.54.0 <7.81.0": "7.81.0",
     "@noble/curves": "2.3.0",
     "@noble/hashes": "2.4.0",
-    "recharts": "3.9.2"
+    "recharts@<3.9.2": "3.9.2"
   }
 }
