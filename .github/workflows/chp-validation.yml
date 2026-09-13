@@ -51,7 +51,7 @@ jobs:
           if [ -f ".chp/STATE_MACHINE.md" ]; then
             REQUIRED_STATES=("EXPLORING" "ADVISORY_LOCK" "PROVISIONAL_LOCK" "LOCKED")
             for state in "${REQUIRED_STATES[@]}"; do
-              if rg -q "$state" .chp/STATE_MACHINE.md; then
+              if grep -qE -- "$state" .chp/STATE_MACHINE.md; then
                 echo "  [OK] STATE_MACHINE.md contains state: $state"
               else
                 echo "  [MISSING] STATE_MACHINE.md missing state: $state"
@@ -60,13 +60,13 @@ jobs:
             done
 
             # Validate domain and threshold
-            if rg -q "blockchain_defi" .chp/STATE_MACHINE.md; then
+            if grep -qE -- "blockchain_defi" .chp/STATE_MACHINE.md; then
               echo "  [OK] STATE_MACHINE.md contains domain: blockchain_defi"
             else
               echo "  [WARN] STATE_MACHINE.md missing domain: blockchain_defi"
             fi
 
-            if rg -q "threshold.*85|85.*threshold" .chp/STATE_MACHINE.md; then
+            if grep -qE -- "threshold.*85|85.*threshold" .chp/STATE_MACHINE.md; then
               echo "  [OK] STATE_MACHINE.md contains threshold: 85"
             else
               echo "  [WARN] STATE_MACHINE.md threshold not explicitly set to 85"
@@ -77,7 +77,7 @@ jobs:
           if [ -f ".chp/R0_CONFIG.yaml" ]; then
             REQUIRED_KEYS=("similarity_threshold" "domain" "blockchain_defi")
             for key in "${REQUIRED_KEYS[@]}"; do
-              if rg -q "$key" .chp/R0_CONFIG.yaml; then
+              if grep -qE -- "$key" .chp/R0_CONFIG.yaml; then
                 echo "  [OK] R0_CONFIG.yaml contains key: $key"
               else
                 echo "  [MISSING] R0_CONFIG.yaml missing key: $key"
@@ -88,7 +88,8 @@ jobs:
 
           # Validate ADVERSARIAL_PROMPTS.md contains domain-specific templates
           if [ -f ".chp/ADVERSARIAL_PROMPTS.md" ]; then
-            TEMPLATE_COUNT=$(rg -c "^## Template" .chp/ADVERSARIAL_PROMPTS.md || echo "0")
+            TEMPLATE_COUNT=$(grep -cE -- "^## Template" .chp/ADVERSARIAL_PROMPTS.md || true)
+            TEMPLATE_COUNT=${TEMPLATE_COUNT:-0}
             echo "  [OK] ADVERSARIAL_PROMPTS.md contains $TEMPLATE_COUNT challenge templates"
             if [ "$TEMPLATE_COUNT" -lt 5 ]; then
               echo "  [WARN] Expected at least 5 adversarial templates, found $TEMPLATE_COUNT"
@@ -98,7 +99,7 @@ jobs:
           # Validate .gitignore contains CHP exclusions
           if [ -f ".gitignore" ]; then
             for exclusion in ".chp/local/" ".chp/sealed/"; do
-              if rg -q "$exclusion" .gitignore; then
+              if grep -qF -- "$exclusion" .gitignore; then
                 echo "  [OK] .gitignore contains: $exclusion"
               else
                 echo "  [WARN] .gitignore missing: $exclusion"
@@ -137,7 +138,7 @@ jobs:
       - name: Check for sealed artifacts in commit
         run: |
           echo "=== Sealed Artifact Check ==="
-          if git diff --name-only HEAD~1 2>/dev/null | rg -q '^\.chp/sealed/'; then
+          if git diff --name-only HEAD~1 2>/dev/null | grep -qE -- '^\.chp/sealed/'; then
             echo "  [WARN] Sealed artifacts detected in commit diff"
             echo "  Sealed artifacts should only be modified through CHP protocol"
           else
