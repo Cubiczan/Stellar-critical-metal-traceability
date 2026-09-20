@@ -100,6 +100,18 @@ bun run lint   # run ESLint
 
 See [BUIDL.md](BUIDL.md) for architecture documentation and protocol details.
 
+## Propagation notes (wave B)
+
+- **Row 8 (attestation-threshold minting) — reversed.** The row's condition
+  (a minting/issuance function to gate with 3-of-N verifier attestation)
+  does not hold in this repository: there is no in-repo mint path — the
+  Soroban contract lives off-repo, mint events on the dashboard are static
+  demo data (`src/pages/Events.tsx`), and the chain helpers in
+  `src/lib/stellar.ts` are read/submit plumbing with zero callers (no
+  wallet integration, no wired issuance flow). There is no issuance
+  function here to threshold-gate. Reopens if the dashboard grows a real,
+  owned issuance flow — at that point gate it behind verifier attestations.
+
 ## License
 
 MIT
